@@ -1,7 +1,6 @@
 services:
   nginx-proxy:
     image: nginxproxy/nginx-proxy
-    container_name: nginx-proxy
     ports:
       - "80:80"
       - "443:443"
@@ -13,28 +12,26 @@ services:
 
   nginx-proxy-acme:
     image: nginxproxy/acme-companion
-    container_name: nginx-proxy-acme-2
     depends_on:
       - nginx-proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - acme:/etc/acme.sh
     environment:
-      - DEFAULT_EMAIL=gernesto14@yahoo.com
+      - DEFAULT_EMAIL=${DEFAULT_EMAIL}
     restart: unless-stopped
     volumes_from:
       - nginx-proxy
 
   proxy-service:
     image: nginx:alpine
-    container_name: proxy-service
     volumes:
       - ./proxy-service:/etc/nginx/conf.d:ro
     environment:
-      - VIRTUAL_HOST=servicelinktech.com
-      - LETSENCRYPT_HOST=servicelinktech.com
-      - LETSENCRYPT_EMAIL=your-email@example.com
-      - TARGET_DOMAIN=${TARGET_DOMAIN}
+      - VIRTUAL_HOST=${VIRTUAL_HOST}
+      - LETSENCRYPT_HOST=${LETSENCRYPT_HOST}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+      - TARGET_DOMAIN=${TARGET_SERVICE}
 
     restart: unless-stopped
     extra_hosts:
@@ -43,7 +40,6 @@ services:
   # Example service to be proxied
   hello-world:
     image: nginx:alpine
-    container_name: hello-world
     volumes:
       - ./html:/usr/share/nginx/html:ro
 
